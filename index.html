@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Counter DApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <style>
+    body {
+      background: #e5ecfb;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+    }
+
+    h1 img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    #count {
+      font-size: 24px;
+      margin-top: 10px;
+      color: #333;
+    }
+
+    .button-container {
+      margin-top: 30px;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 0 10px;
+      border-radius: 10px;
+      border: 2px solid purple;
+      background: white;
+      color: purple;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: purple;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>
+    <img src="https://cdn-icons-png.flaticon.com/512/3145/3145765.png" alt="icon">
+    Counter DApp
+  </h1>
+
+  <div id="count">Current Count: ...</div>
+
+  <div class="button-container">
+    <button onclick="getCount()">🔍 Get Count</button>
+    <button onclick="increment()">➕ Increment</button>
+    <button onclick="decrement()">➖ Decrement</button>
+  </div>
+
+  <script>
+    let web3;
+    let contract;
+
+    const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+    const abi = [
+    {
+      "inputs": [],
+      "name": "count",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decrement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "increment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+
+    async function initWeb3() {
+      if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        contract = new web3.eth.Contract(abi, contractAddress);
+      } else {
+        alert("MetaMask is not installed.");
+      }
+    }
+
+    async function getCount() {
+      const count = await contract.methods.getCount().call();
+      document.getElementById("count").innerText = "Current Count: " + count;
+    }
+
+    async function increment() {
+      const accounts = await web3.eth.getAccounts();
+      await contract.methods.increment().send({ from: accounts[0] });
+      getCount();
+    }
+
+    async function decrement() {
+      const accounts = await web3.eth.getAccounts();
+      await contract.methods.decrement().send({ from: accounts[0] });
+      getCount();
+    }
+
+    // initialize web3
+    window.addEventListener('load', initWeb3);
+  </script>
+
+</body>
+</html>
